@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+		xmlns:tns="http://nurkiewicz.blogspot.com/spring/onion/spring-onion.xsd"
+		xmlns="http://www.w3.org/2001/XMLSchema"
+		targetNamespace="http://nurkiewicz.blogspot.com/spring/onion/spring-onion.xsd"
+		elementFormDefault="qualified"
+		attributeFormDefault="unqualified">
+
+	<element name="entity">
+		<complexType>
+			<sequence>
+				<element name="page" type="tns:Page" minOccurs="0" maxOccurs="unbounded"/>
+			</sequence>
+			<attribute name="class" type="string" use="required"/>
+		</complexType>
+	</element>
+	
+	<complexType name="Page">
+		<attribute name="response" type="int" use="required"/>
+		<attribute name="dest" type="string" use="required"/>
+	</complexType>
+
+	<element name="converter">
+		<complexType>
+			<attribute name="format" type="string" use="required"/>
+			<attribute name="lenient" type="boolean"/>
+		</complexType>
+	</element>
+	
+</schema>

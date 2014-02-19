@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/beans"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	       http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+
+	<jdbc:embedded-database id="dataSource" type="H2"/>
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<constructor-arg ref="dataSource"/>
+	</bean>
+
+
+	<bean id="convertersFactory" class="com.blogspot.nurkiewicz.onion.ConvertersFactory"/>
+
+	<bean id="htmlConverter" class="com.blogspot.nurkiewicz.onion.Converter" factory-bean="convertersFactory" factory-method="build">
+		<constructor-arg value="html.xml"/>
+		<constructor-arg value="true"/>
+		<property name="reader" ref="htmlReader"/>
+	</bean>
+	<bean id="htmlReader" class="com.blogspot.nurkiewicz.onion.ReaderFactoryBean">
+		<property name="format" value="html"/>
+	</bean>
+
+	<bean id="jsonConverter" class="com.blogspot.nurkiewicz.onion.Converter" factory-bean="convertersFactory" factory-method="build">
+		<constructor-arg value="json.xml"/>
+		<constructor-arg value="true"/>
+		<property name="reader" ref="jsonReader"/>
+	</bean>
+	<bean id="jsonReader" class="com.blogspot.nurkiewicz.onion.ReaderFactoryBean">
+		<property name="format" value="json"/>
+	</bean>
+
+	<bean id="errorConverter" class="com.blogspot.nurkiewicz.onion.Converter" factory-bean="convertersFactory" factory-method="build">
+		<constructor-arg value="error.xml"/>
+		<constructor-arg value="false"/>
+		<property name="reader" ref="errorReader"/>
+	</bean>
+	<bean id="errorReader" class="com.blogspot.nurkiewicz.onion.ReaderFactoryBean">
+		<property name="format" value="json"/>
+	</bean>
+
+	<!-- FOO -->
+	<bean id="fooController" class="com.blogspot.nurkiewicz.onion.FooController" scope="prototype">
+		<constructor-arg ref="fooService"/>
+		<property name="errorMapping">
+			<util:map>
+				<entry key="404" value="not-found.html"/>
+				<entry key="503" value="error.html"/>
+			</util:map>
+		</property>
+	</bean>
+	<bean id="fooService" class="com.blogspot.nurkiewicz.onion.FooService">
+		<constructor-arg ref="fooRepository"/>
+		<property name="converters">
+			<util:list>
+				<ref bean="jsonConverter"/>
+				<ref bean="errorConverter"/>
+			</util:list>
+		</property>
+	</bean>
+	<bean id="fooRepository" class="com.blogspot.nurkiewicz.onion.FooRepository" init-method="init" destroy-method="destroy">
+		<property name="entityName" value="Foo"/>
+		<property name="table" value="FOO"/>
+		<property name="dataSource" ref="dataSource"/>
+		<property name="transactionManager" ref="transactionManager"/>
+	</bean>
+
+	<!-- BAR -->
+	<bean id="barController" class="com.blogspot.nurkiewicz.onion.BarController" scope="prototype">
+		<constructor-arg ref="barService"/>
+		<property name="errorMapping">
+			<util:map>
+				<entry key="404" value="not-found.html"/>
+				<entry key="503" value="error.html"/>
+			</util:map>
+		</property>
+	</bean>
+	<bean id="barService" class="com.blogspot.nurkiewicz.onion.BarService">
+		<constructor-arg ref="barRepository"/>
+		<property name="converters">
+			<util:list>
+				<ref bean="jsonConverter"/>
+				<ref bean="htmlConverter"/>
+				<ref bean="errorConverter"/>
+			</util:list>
+		</property>
+	</bean>
+	<bean id="barRepository" class="com.blogspot.nurkiewicz.onion.BarRepository" init-method="init" destroy-method="destroy">
+		<property name="entityName" value="Bar"/>
+		<property name="table" value="BAR"/>
+		<property name="dataSource" ref="dataSource"/>
+		<property name="transactionManager" ref="transactionManager"/>
+	</bean>
+
+	<!-- BUZZ -->
+	<bean id="buzzController" class="com.blogspot.nurkiewicz.onion.BuzzController" scope="prototype">
+		<constructor-arg ref="buzzService"/>
+		<property name="errorMapping">
+			<util:map>
+				<entry key="404" value="not-found.html"/>
+				<entry key="503" value="error.html"/>
+			</util:map>
+		</property>
+	</bean>
+	<bean id="buzzService" class="com.blogspot.nurkiewicz.onion.BuzzService">
+		<constructor-arg ref="buzzRepository"/>
+		<property name="converters">
+			<util:list>
+				<ref bean="jsonConverter"/>
+				<ref bean="errorConverter"/>
+			</util:list>
+		</property>
+	</bean>
+	<bean id="buzzRepository" class="com.blogspot.nurkiewicz.onion.BuzzRepository" init-method="init" destroy-method="destroy">
+		<property name="entityName" value="Buzz"/>
+		<property name="table" value="BUZZ"/>
+		<property name="dataSource" ref="dataSource"/>
+		<property name="transactionManager" ref="transactionManager"/>
+	</bean>
+
+</beans>
