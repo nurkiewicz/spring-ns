@@ -1,6 +1,7 @@
 package com.blogspot.nurkiewicz.onion.ns;
 
 import com.blogspot.nurkiewicz.onion.Converter;
+import com.blogspot.nurkiewicz.onion.ReaderFactoryBean;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
@@ -14,15 +15,31 @@ public class ConverterBeanDefinitionParser extends AbstractBeanDefinitionParser 
 		final String format = converterElement.getAttribute("format");
 		final String lenientStr = converterElement.getAttribute("format");
 		final boolean lenient = lenientStr != null? Boolean.valueOf(lenientStr) : true;
-		AbstractBeanDefinition beanDef = BeanDefinitionBuilder.
+		register(converterBeanDefinition(format, lenient), format + "Converter", parserContext);
+		register(readerBeanDef(format), format + "Reader", parserContext);
+		return null;
+	}
+
+	private void register(AbstractBeanDefinition def, String name, ParserContext parserContext) {
+		parserContext.getRegistry().registerBeanDefinition(name, def);
+	}
+
+	private AbstractBeanDefinition readerBeanDef(String format) {
+		return BeanDefinitionBuilder.
+					rootBeanDefinition(ReaderFactoryBean.class).
+					addPropertyValue("format", format).
+					getBeanDefinition();
+	}
+
+	private AbstractBeanDefinition converterBeanDefinition(String format, boolean lenient) {
+		AbstractBeanDefinition converterBeanDef = BeanDefinitionBuilder.
 				rootBeanDefinition(Converter.class.getName()).
 				addConstructorArgValue(format + ".xml").
 				addConstructorArgValue(lenient).
-				addConstructorArgReference(format + "Reader").
+				addPropertyReference("reader", format + "Reader").
 				getBeanDefinition();
-		beanDef.setFactoryBeanName("convertersFactory");
-		beanDef.setFactoryMethodName("build");
-
-		return null;
+		converterBeanDef.setFactoryBeanName("convertersFactory");
+		converterBeanDef.setFactoryMethodName("build");
+		return converterBeanDef;
 	}
 }

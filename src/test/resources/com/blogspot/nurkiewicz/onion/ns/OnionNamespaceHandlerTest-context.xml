@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:onion="http://nurkiewicz.blogspot.com/spring/onion/spring-onion.xsd"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:util="http://www.springframework.org/schema/beans"
        xmlns:jdbc="http://www.springframework.org/schema/jdbc"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	       http://nurkiewicz.blogspot.com/spring/onion/spring-onion.xsd http://nurkiewicz.blogspot.com/spring/onion/spring-onion.xsd
 	       http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
 
 	<jdbc:embedded-database id="dataSource" type="H2"/>
@@ -14,32 +16,9 @@
 
 	<bean id="convertersFactory" class="com.blogspot.nurkiewicz.onion.ConvertersFactory"/>
 
-	<bean id="htmlConverter" class="com.blogspot.nurkiewicz.onion.Converter" factory-bean="convertersFactory" factory-method="build">
-		<constructor-arg value="html.xml"/>
-		<constructor-arg value="true"/>
-		<property name="reader" ref="htmlReader"/>
-	</bean>
-	<bean id="htmlReader" class="com.blogspot.nurkiewicz.onion.ReaderFactoryBean">
-		<property name="format" value="html"/>
-	</bean>
-
-	<bean id="jsonConverter" class="com.blogspot.nurkiewicz.onion.Converter" factory-bean="convertersFactory" factory-method="build">
-		<constructor-arg value="json.xml"/>
-		<constructor-arg value="true"/>
-		<property name="reader" ref="jsonReader"/>
-	</bean>
-	<bean id="jsonReader" class="com.blogspot.nurkiewicz.onion.ReaderFactoryBean">
-		<property name="format" value="json"/>
-	</bean>
-
-	<bean id="errorConverter" class="com.blogspot.nurkiewicz.onion.Converter" factory-bean="convertersFactory" factory-method="build">
-		<constructor-arg value="error.xml"/>
-		<constructor-arg value="false"/>
-		<property name="reader" ref="errorReader"/>
-	</bean>
-	<bean id="errorReader" class="com.blogspot.nurkiewicz.onion.ReaderFactoryBean">
-		<property name="format" value="json"/>
-	</bean>
+	<onion:converter format="html"/>
+	<onion:converter format="json"/>
+	<onion:converter format="error" lenient="false"/>
 
 	<!-- FOO -->
 	<bean id="fooController" class="com.blogspot.nurkiewicz.onion.FooController" scope="prototype">
@@ -119,5 +98,12 @@
 		<property name="dataSource" ref="dataSource"/>
 		<property name="transactionManager" ref="transactionManager"/>
 	</bean>
+
+	<!--
+		<onion:entity class="html">
+			<onion:page response="404" dest="not-found"/>
+			<onion:page response="503" dest="error"/>
+		</onion:entity>
+	-->
 
 </beans>
