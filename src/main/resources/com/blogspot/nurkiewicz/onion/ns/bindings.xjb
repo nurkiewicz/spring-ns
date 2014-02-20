@@ -8,6 +8,7 @@
 			<jxb:nameXmlTransform>
 				<jxb:typeName prefix="Xml"/>
 				<jxb:anonymousTypeName prefix="Xml"/>
+				<jxb:elementName prefix="Xml"/>
 			</jxb:nameXmlTransform>
 		</jxb:schemaBindings>
 	</jxb:bindings>
