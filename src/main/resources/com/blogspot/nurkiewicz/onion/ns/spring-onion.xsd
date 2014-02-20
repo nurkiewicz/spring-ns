@@ -12,6 +12,7 @@
 				<element name="page" type="tns:Page" minOccurs="0" maxOccurs="unbounded"/>
 			</sequence>
 			<attribute name="class" type="string" use="required"/>
+			<attribute name="converters" type="string"/>
 		</complexType>
 	</element>
 	
