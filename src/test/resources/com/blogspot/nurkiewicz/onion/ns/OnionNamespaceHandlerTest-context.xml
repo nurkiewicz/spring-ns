@@ -51,8 +51,8 @@
 		<constructor-arg ref="barService"/>
 		<property name="errorMapping">
 			<util:map>
-				<entry key="404" value="not-found.html"/>
-				<entry key="503" value="error.html"/>
+				<entry key="400" value="bad-request.html"/>
+				<entry key="500" value="internal.html"/>
 			</util:map>
 		</property>
 	</bean>
@@ -78,8 +78,7 @@
 		<constructor-arg ref="buzzService"/>
 		<property name="errorMapping">
 			<util:map>
-				<entry key="404" value="not-found.html"/>
-				<entry key="503" value="error.html"/>
+				<entry key="502" value="bad-gateway.html"/>
 			</util:map>
 		</property>
 	</bean>
