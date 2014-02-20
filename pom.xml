@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.blogspot.nurkiewicz</groupId>
 	<artifactId>spring-ns</artifactId>
@@ -81,7 +81,7 @@
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
-		 </dependency>
+		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
@@ -134,23 +134,24 @@
 					<showWarnings>true</showWarnings>
 				</configuration>
 			</plugin>
-            <plugin>
-                <groupId>org.jvnet.jaxb2.maven2</groupId>
-                <artifactId>maven-jaxb22-plugin</artifactId>
-                <version>0.8.3</version>
-                <executions>
-                    <execution>
-                        <id>xjc</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <schemaDirectory>src/main/resources/com/blogspot/nurkiewicz/spring/ns</schemaDirectory>
-                </configuration>
-            </plugin>
-        </plugins>
+			<plugin>
+				<groupId>org.jvnet.jaxb2.maven2</groupId>
+				<artifactId>maven-jaxb22-plugin</artifactId>
+				<version>0.8.3</version>
+				<executions>
+					<execution>
+						<id>xjc</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<schemaDirectory>src/main/resources/com/blogspot/nurkiewicz/onion/ns</schemaDirectory>
+					<generatePackage>com.blogspot.nurkiewicz.onion.ns.xml</generatePackage>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 
 </project>
