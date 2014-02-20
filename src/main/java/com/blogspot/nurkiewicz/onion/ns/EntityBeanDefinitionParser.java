@@ -1,7 +1,10 @@
 package com.blogspot.nurkiewicz.onion.ns;
 
+import com.blogspot.nurkiewicz.onion.ns.xml.XmlEntity;
+import com.blogspot.nurkiewicz.onion.ns.xml.XmlPage;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.springframework.beans.BeanMetadataElement;
@@ -13,56 +16,64 @@ import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EntityBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
-	private static final String NS = "http://nurkiewicz.blogspot.com/spring/onion/spring-onion.xsd";
 	private static final String PKG = "com.blogspot.nurkiewicz.onion.";
+
+	private final Unmarshaller unmarshaller;
+
+	public EntityBeanDefinitionParser() throws JAXBException {
+		unmarshaller = JAXBContext.newInstance("com.blogspot.nurkiewicz.onion.ns.xml").createUnmarshaller();
+	}
+
 
 	@Override
 	protected AbstractBeanDefinition parseInternal(Element entityElement, ParserContext parserContext) {
-		final String clazz = entityElement.getAttribute("class");
-		final String converters = entityElement.getAttribute("converters");
-		register(repositoryBeanDef(clazz), repoBeanName(clazz), parserContext);
-		register(serviceBeanDef(clazz, converters), serviceBeanName(clazz), parserContext);
-		register(controllerBeanDef(entityElement, clazz), controllerBeanName(clazz), parserContext);
-		return null;
+		try {
+			final XmlEntity entity = (XmlEntity) unmarshaller.unmarshal(entityElement);
+			final String clazz = entity.getClazz();
+			register(repositoryBeanDef(clazz), repoBeanName(clazz), parserContext);
+			register(serviceBeanDef(entity), serviceBeanName(clazz), parserContext);
+			register(controllerBeanDef(entity), controllerBeanName(clazz), parserContext);
+			return null;
+		} catch (JAXBException e) {
+			throw Throwables.propagate(e);
+		}
 	}
 
-	private AbstractBeanDefinition controllerBeanDef(Element entityElement, String clazz) {
+	private AbstractBeanDefinition controllerBeanDef(XmlEntity entity) {
 		return BeanDefinitionBuilder.
-					rootBeanDefinition(controllerBeanName(clazz)).
-					addConstructorArgReference(serviceBeanName(clazz)).
-					addPropertyValue("errorMapping", extractErrorMappings(entityElement)).
-					setScope(ConfigurableBeanFactory.SCOPE_PROTOTYPE).
-					getBeanDefinition();
+				rootBeanDefinition(controllerBeanName(entity.getClazz())).
+				addConstructorArgReference(serviceBeanName(entity.getClazz())).
+				addPropertyValue("errorMapping", extractErrorMappings(entity)).
+				setScope(ConfigurableBeanFactory.SCOPE_PROTOTYPE).
+				getBeanDefinition();
 	}
 
 	private String controllerBeanName(String clazz) {
 		return PKG + clazz + "Controller";
 	}
 
-	private ImmutableMap<Integer, String> extractErrorMappings(Element entityElement) {
-		final NodeList pageNodes = entityElement.getElementsByTagNameNS(NS, "page");
+	private ImmutableMap<Integer, String> extractErrorMappings(XmlEntity entity) {
 		final ImmutableMap.Builder<Integer, String> errorMappingBuilder = new ImmutableMap.Builder<>();
-		for (int i = 0; i < pageNodes.getLength(); ++i) {
-			Element pageElem = (Element) pageNodes.item(i);
-			final int response = Integer.parseInt(pageElem.getAttribute("response"));
-			final String dest = pageElem.getAttribute("dest") + ".html";
-			errorMappingBuilder.put(response, dest);
+		for (XmlPage page : entity.getPage()) {
+			errorMappingBuilder.put(page.getResponse(), page.getDest() + ".html");
 		}
 		return errorMappingBuilder.build();
 	}
 
-	private AbstractBeanDefinition serviceBeanDef(String clazz, String converters) {
-		final List<BeanMetadataElement> converterRefs = converterRefs(converterNames(converters));
+	private AbstractBeanDefinition serviceBeanDef(XmlEntity entity) {
+		final List<BeanMetadataElement> converterRefs = converterRefs(converterNames(entity.getConverters()));
 		return BeanDefinitionBuilder.
-				rootBeanDefinition(PKG + clazz + "Service").
-				addConstructorArgReference(repoBeanName(clazz)).
+				rootBeanDefinition(PKG + entity.getClazz() + "Service").
+				addConstructorArgReference(repoBeanName(entity.getClazz())).
 				addPropertyValue("converters", converterRefs).
 				getBeanDefinition();
 	}
@@ -92,14 +103,14 @@ public class EntityBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
 	private AbstractBeanDefinition repositoryBeanDef(String clazz) {
 		return BeanDefinitionBuilder.
-					rootBeanDefinition(PKG + clazz + "Repository").
-					setInitMethodName("init").
-					setDestroyMethodName("destroy").
-					addPropertyValue("entityName", clazz).
-					addPropertyValue("table", clazz.toUpperCase()).
-					addPropertyReference("dataSource", "dataSource").
-					addPropertyReference("transactionManager", "transactionManager").
-					getBeanDefinition();
+				rootBeanDefinition(PKG + clazz + "Repository").
+				setInitMethodName("init").
+				setDestroyMethodName("destroy").
+				addPropertyValue("entityName", clazz).
+				addPropertyValue("table", clazz.toUpperCase()).
+				addPropertyReference("dataSource", "dataSource").
+				addPropertyReference("transactionManager", "transactionManager").
+				getBeanDefinition();
 	}
 
 	private void register(AbstractBeanDefinition def, String name, ParserContext parserContext) {
