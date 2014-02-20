@@ -24,7 +24,7 @@
 	<element name="converter">
 		<complexType>
 			<attribute name="format" type="string" use="required"/>
-			<attribute name="lenient" type="boolean"/>
+			<attribute name="lenient" type="boolean" default="true"/>
 		</complexType>
 	</element>
 	
