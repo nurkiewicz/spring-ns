@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:onion="http://nurkiewicz.blogspot.com/spring/onion/spring-onion.xsd"
+<b:beans xmlns:b="http://www.springframework.org/schema/beans"
+       xmlns="http://nurkiewicz.blogspot.com/spring/onion/spring-onion.xsd"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:jdbc="http://www.springframework.org/schema/jdbc"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -8,29 +8,28 @@
 	       http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
 
 	<jdbc:embedded-database id="dataSource" type="H2"/>
-	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<constructor-arg ref="dataSource"/>
-	</bean>
+	<b:bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<b:constructor-arg ref="dataSource"/>
+	</b:bean>
 
+	<b:bean id="convertersFactory" class="com.blogspot.nurkiewicz.onion.ConvertersFactory"/>
 
-	<bean id="convertersFactory" class="com.blogspot.nurkiewicz.onion.ConvertersFactory"/>
+	<converter format="html"/>
+	<converter format="json"/>
+	<converter format="error" lenient="false"/>
 
-	<onion:converter format="html"/>
-	<onion:converter format="json"/>
-	<onion:converter format="error" lenient="false"/>
+	<entity class="Foo" converters="json, error">
+		<page response="404" dest="not-found"/>
+		<page response="503" dest="error"/>
+	</entity>
 
-	<onion:entity class="Foo" converters="json, error">
-		<onion:page response="404" dest="not-found"/>
-		<onion:page response="503" dest="error"/>
-	</onion:entity>
+	<entity class="Bar" converters="json, html, error">
+		<page response="400" dest="bad-request"/>
+		<page response="500" dest="internal"/>
+	</entity>
 
-	<onion:entity class="Bar" converters="json, html, error">
-		<onion:page response="400" dest="bad-request"/>
-		<onion:page response="500" dest="internal"/>
-	</onion:entity>
+	<entity class="Buzz" converters="json, html">
+		<page response="502" dest="bad-gateway"/>
+	</entity>
 
-	<onion:entity class="Buzz" converters="json, html">
-		<onion:page response="502" dest="bad-gateway"/>
-	</onion:entity>
-
-</beans>
+</b:beans>
