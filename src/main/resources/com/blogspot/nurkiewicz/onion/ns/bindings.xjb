@@ -1,16 +1,16 @@
-<jxb:bindings version="1.0"
-              xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+<bindings version="1.0"
+              xmlns="http://java.sun.com/xml/ns/jaxb"
               xmlns:xs="http://www.w3.org/2001/XMLSchema"
-              jxb:extensionBindingPrefixes="xjc">
+              extensionBindingPrefixes="xjc">
 
-	<jxb:bindings schemaLocation="spring-onion.xsd" node="/xs:schema">
-		<jxb:schemaBindings>
-			<jxb:nameXmlTransform>
-				<jxb:typeName prefix="Xml"/>
-				<jxb:anonymousTypeName prefix="Xml"/>
-				<jxb:elementName prefix="Xml"/>
-			</jxb:nameXmlTransform>
-		</jxb:schemaBindings>
-	</jxb:bindings>
+	<bindings schemaLocation="spring-onion.xsd" node="/xs:schema">
+		<schemaBindings>
+			<nameXmlTransform>
+				<typeName prefix="Xml"/>
+				<anonymousTypeName prefix="Xml"/>
+				<elementName prefix="Xml"/>
+			</nameXmlTransform>
+		</schemaBindings>
+	</bindings>
 
-</jxb:bindings>
+</bindings>
