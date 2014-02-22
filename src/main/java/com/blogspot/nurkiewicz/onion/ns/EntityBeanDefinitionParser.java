@@ -4,7 +4,6 @@ import com.blogspot.nurkiewicz.onion.ns.xml.XmlEntity;
 import com.blogspot.nurkiewicz.onion.ns.xml.XmlPage;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.springframework.beans.BeanMetadataElement;
@@ -17,9 +16,6 @@ import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.w3c.dom.Element;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,25 +23,14 @@ public class EntityBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
 	private static final String PKG = "com.blogspot.nurkiewicz.onion.";
 
-	private final Unmarshaller unmarshaller;
-
-	public EntityBeanDefinitionParser() throws JAXBException {
-		unmarshaller = JAXBContext.newInstance("com.blogspot.nurkiewicz.onion.ns.xml").createUnmarshaller();
-	}
-
-
 	@Override
 	protected AbstractBeanDefinition parseInternal(Element entityElement, ParserContext parserContext) {
-		try {
-			final XmlEntity entity = (XmlEntity) unmarshaller.unmarshal(entityElement);
-			final String clazz = entity.getClazz();
-			register(repositoryBeanDef(clazz), repoBeanName(clazz), parserContext);
-			register(serviceBeanDef(entity), serviceBeanName(clazz), parserContext);
-			register(controllerBeanDef(entity), controllerBeanName(clazz), parserContext);
-			return null;
-		} catch (JAXBException e) {
-			throw Throwables.propagate(e);
-		}
+		final XmlEntity entity = JaxbHelper.unmarshal(entityElement);
+		final String clazz = entity.getClazz();
+		register(repositoryBeanDef(clazz), repoBeanName(clazz), parserContext);
+		register(serviceBeanDef(entity), serviceBeanName(clazz), parserContext);
+		register(controllerBeanDef(entity), controllerBeanName(clazz), parserContext);
+		return null;
 	}
 
 	private AbstractBeanDefinition controllerBeanDef(XmlEntity entity) {
